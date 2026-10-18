@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#c2410c"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Accent Kit"><style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style></head><body>
+<title>Accent Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Charis+SIL:wght@400;700&display=swap">
+<style>
+/* Layout: rehearsal-room console. Accent list on the left, the open kit on the right, tabs for each layer of the accent. */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#15202b; --muted:#56636f; --line:#d3dae1;
+  --accent:#c2410c; --accent-soft:#fde4d6; --spot:#f59e0b; --chip:#e4e9ee;
+  --tongue:#e9a3a3; --tract:#4b5a68; --tract-fill:#f6dede;
+  --male:#1d4f91; --male-bg:#dce8f7; --female:#7a2e6b; --female-bg:#f4e0ef;
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-ipa:"Charis SIL","Doulos SIL","Gentium Plus","Noto Serif",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f161d; --panel:#16202a; --ink:#e7edf2; --muted:#9aa8b5; --line:#2a3743;
+  --accent:#fb8a4c; --accent-soft:#3a2418; --spot:#fbbf24; --chip:#1f2c38;
+  --tongue:#b86b6b; --tract:#a9b8c6; --tract-fill:#2c2226;
+  --male:#9cc3f5; --male-bg:#1b2c42; --female:#efb3e1; --female-bg:#3a1f35; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --panel:#16202a; --ink:#e7edf2; --muted:#9aa8b5; --line:#2a3743;
+  --accent:#fb8a4c; --accent-soft:#3a2418; --spot:#fbbf24; --chip:#1f2c38;
+  --tongue:#b86b6b; --tract:#a9b8c6; --tract-fill:#2c2226;
+  --male:#9cc3f5; --male-bg:#1b2c42; --female:#efb3e1; --female-bg:#3a1f35; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:18px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.02em;margin:0;line-height:1.05}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:0;max-width:60ch}
+h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h2{font-size:1.9rem;letter-spacing:-.01em}
+h3{font-size:1.15rem}
+.ipa{font-family:var(--f-ipa)}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--spot);outline-offset:2px}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;align-items:start}
+nav.list{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:14px}
+.group h4{margin:0 0 6px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.group ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.group button{all:unset;cursor:pointer;display:flex;justify-content:space-between;gap:8px;width:100%;box-sizing:border-box;padding:7px 10px;border-radius:8px;font-size:.95rem}
+.group button:hover{background:var(--chip)}
+.group button[aria-current="true"]{background:var(--ink);color:var(--bg)}
+.group button small{opacity:.7;font-size:.78rem}
+.method-btn{all:unset;cursor:pointer;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-weight:700;text-align:left}
+.method-btn[aria-current="true"]{border-color:var(--accent);color:var(--accent)}
+.mobile-pick{display:none}
+main{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;min-width:0}
+.kit-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:16px}
+.kit-head p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:var(--chip);border-radius:999px;padding:3px 10px;font-size:.8rem}
+.tabs{display:flex;gap:4px;margin:16px 0 20px;overflow-x:auto;scrollbar-width:thin}
+.tabs button{all:unset;cursor:pointer;white-space:nowrap;padding:8px 14px;border-radius:999px;font-weight:700;font-size:.92rem;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.panel{display:grid;gap:22px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.label{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.found{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.found .card p{margin:.4em 0 0}
+dl.setting{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;margin:10px 0 0}
+dl.setting dt{font-weight:700}
+dl.setting dd{margin:0}
+.zone-fig{display:grid;gap:8px}
+.zone-fig svg{width:100%;max-width:420px;height:auto;display:block}
+.zone-fig svg text{fill:var(--muted);font-family:var(--f-body);font-size:9.5px}
+.tune svg{width:100%;height:auto;display:block;max-width:520px}
+.tune svg text{fill:var(--muted);font-family:var(--f-body);font-size:11px}
+.listen{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.sample{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:6px;align-content:start}
+.sample a.play{display:inline-flex;align-items:center;gap:8px;font-weight:700;text-decoration:none;background:var(--accent);color:#fff;padding:7px 12px;border-radius:999px;width:max-content}
+:root[data-theme="dark"] .sample a.play{color:#1a0d05}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sample a.play{color:#1a0d05}}
+.sample audio{width:100%}
+.missing{font-size:.85rem;color:var(--muted)}
+.recs{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin:0 0 1rem;padding:.7rem 1rem;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:.92rem}
+.recs strong{font-family:var(--f-display)}
+.recs button{font:inherit;font-weight:700;padding:.45rem .9rem;border-radius:999px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+.recs .why{color:var(--muted);flex-basis:100%;margin:0;font-size:.85rem}
+.missing code{font-size:.8rem;word-break:break-all}
+.sample .who{color:var(--muted);font-size:.9rem}
+.sex{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 10px;width:max-content}
+.sex-M{background:var(--male-bg);color:var(--male)}
+.sex-F{background:var(--female-bg);color:var(--female)}
+.voice-filter{display:flex;flex-wrap:wrap;gap:6px}
+.voice-filter button{all:unset;cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:.88rem;font-weight:700}
+.voice-filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.voice-filter small{opacity:.7;font-weight:400}
+.note{background:var(--chip);border-radius:10px;padding:12px 14px;font-size:.92rem}
+.cons{display:grid;gap:12px}
+.con{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;border-top:1px solid var(--line);padding-top:12px}
+.con:first-child{border-top:0;padding-top:0}
+.con .sym{font-family:var(--f-display);font-size:1.6rem;font-weight:700;line-height:1}
+.con .sym .ipa{display:block;font-size:1rem;font-weight:400;color:var(--muted);margin-top:4px}
+.con p{margin:0}
+.con .sent{font-style:italic;margin-top:6px}
+.con .refs{margin-top:6px;font-size:.88rem;display:flex;flex-wrap:wrap;gap:4px 14px}
+table.vowels{border-collapse:collapse;width:100%;font-size:.95rem}
+table.vowels th,table.vowels td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.vowels th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+table.vowels td:first-child{font-weight:700;font-family:var(--f-display);white-space:nowrap}
+.scroll{overflow-x:auto}
+ol.steps{margin:0;padding-left:1.3em;display:grid;gap:8px}
+ul.plain{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.ways{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.ways .card p{margin:.4em 0 0}
+.count{font-family:var(--f-display);font-size:1.1rem}
+textarea{width:100%;min-height:110px;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.saved{font-size:.8rem;color:var(--muted)}
+.method h3{margin-top:4px}
+.method p{max-width:68ch}
+footer{margin-top:28px;color:var(--muted);font-size:.85rem;max-width:80ch}
+@media (max-width:820px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  nav.list{display:none}
+  .mobile-pick{display:block;margin-bottom:14px}
+  .mobile-pick select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .found{grid-template-columns:minmax(0,1fr)}
+  main{padding:18px 16px}
+  .con{grid-template-columns:56px minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){.zone-glow{animation:pulse 2.4s ease-in-out infinite}}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:.9}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Accent <span>Kit</span></h1>
+    <p class="sub">Twelve accents from across the UK, plus General American. Each kit gives you real recordings to listen to, then the setting, zone and tone, the consonants, the vowels and ways into the accent.</p>
+  </header>
+
+  <div class="recs" id="recs">
+    <span><strong id="rec-count">0 of 50</strong> recordings saved on this device</span>
+    <button type="button" id="rec-add">Add recordings</button>
+    <input type="file" id="rec-input" accept=".mp3,audio/mpeg,audio/*" multiple hidden>
+    <p class="why" id="rec-why">Pick the mp3s from your audio folder (you can select them all at once). They stay on this device and are never uploaded.</p>
+  </div>
+
+  <div class="mobile-pick">
+    <label class="label" for="pick">Choose an accent</label>
+    <select id="pick"></select>
+  </div>
+
+  <div class="layout">
+    <nav class="list" id="nav" aria-label="Accents"></nav>
+    <main id="main" aria-live="polite"></main>
+  </div>
+
+  <footer>
+    Recordings belong to their archives and play on their own sites: the International Dialects of English Archive (IDEA, dialectsarchive.com), Seeing Speech and Dynamic Dialects (University of Glasgow, CC BY-NC-ND 4.0) and Wikipedia/Wikimedia Commons. This app keeps IDEA recordings only on your own device, for personal study as IDEA's terms allow. They are never uploaded with the app.
+  </footer>
+</div>
+
+<script>
+const MP3 = {"england-1": "2011/08/england1.mp3", "england-2": "2011/08/england2.mp3", "england-63": "2011/08/england63.mp3", "england-42": "2011/08/england42.mp3", "england-110": "2020/04/england110.mp3", "england-62": "2011/08/england62.mp3", "england-90": "2012/11/england90.mp3", "england-77": "2011/08/england77.mp3", "england-113": "2021/06/england113.mp3", "england-16": "2011/08/england16.mp3", "england-104": "2018/04/england104.mp3", "england-17": "2011/08/england17.mp3", "england-18": "2011/08/england18.mp3", "england-23": "2011/08/england23.mp3", "england-13": "2011/08/england13.mp3", "england-25": "2011/08/england25.mp3", "england-43": "2011/08/england43.mp3", "england-61": "2011/08/england61.mp3", "england-10": "2011/08/england10.mp3", "england-92": "2013/01/england92.mp3", "england-117": "2023/04/england117.mp3", "england-109": "2020/02/england109.mp3", "england-55": "2011/08/england55.mp3", "england-111": "2020/04/england111.mp3", "england-103": "2018/03/england103.mp3", "england-4": "2011/08/england4.mp3", "england-102": "2018/02/england102.mp3", "england-108": "2019/09/england108.mp3", "england-52": "2011/08/england52.mp3", "england-70": "2011/08/england70.mp3", "wales-5": "2011/08/wales5.mp3", "wales-2": "2011/08/wales2.mp3", "wales-7": "2012/11/wales7.mp3", "wales-6": "2011/08/wales6.mp3", "scotland-9": "2020/08/scotland9.mp3", "scotland-27": "2019/04/scotland27.mp3", "scotland-10": "2020/09/scotland10.mp3", "scotland-15": "2011/08/scotland15.mp3", "scotland-24": "2017/03/scotland24.mp3", "scotland-6": "2011/08/scotland6.mp3", "northern-ireland-8": "2020/04/northernireland8.mp3", "general-american-9": "2020/10/General-American-9-Paul-Meier.mp3", "general-american-1": "2020/10/General-American-1-Eric-Armstrong.mp3", "general-american-2": "2020/10/General-American-2-Rena-Cook.mp3", "general-american-12": "2020/10/General-American-12-Krista-Scott.mp3", "england-112": "2020/04/england112.mp3", "england-19": "2011/08/england19.mp3", "northern-ireland-3": "2011/08/northireland3.mp3", "northern-ireland-7": "2015/12/northireland7.mp3", "scotland-23": "2015/12/scotland23.mp3"};
+const fileName = (a,slug) => MP3[slug] ? MP3[slug].split("/").pop() : slug.replace(/-/g,"") + ".mp3";
+const IDEA = n => "https://www.dialectsarchive.com/" + n;
+const WIKI = t => "https://en.wikipedia.org/wiki/" + t;
+const REF = {
+  glottal: ["Glottal stop [ʔ]", WIKI("Glottal_stop")],
+  tap: ["Alveolar tap [ɾ]", WIKI("Voiced_alveolar_tap")],
+  trill: ["Alveolar trill [r]", WIKI("Voiced_alveolar_trill")],
+  approxR: ["Alveolar approximant [ɹ]", WIKI("Voiced_alveolar_approximant")],
+  retroR: ["Retroflex approximant [ɻ]", WIKI("Voiced_retroflex_approximant")],
+  labioR: ["Labiodental approximant [ʋ]", WIKI("Voiced_labiodental_approximant")],
+  uvularR: ["Uvular fricative [ʁ]", WIKI("Voiced_uvular_fricative")],
+  darkL: ["Dark L [ɫ]", WIKI("Voiced_dental,_alveolar_and_postalveolar_lateral_approximants")],
+  th: ["Voiceless dental fricative [θ]", WIKI("Voiceless_dental_fricative")],
+  dh: ["Voiced dental fricative [ð]", WIKI("Voiced_dental_fricative")],
+  f: ["Voiceless labiodental fricative [f]", WIKI("Voiceless_labiodental_fricative")],
+  v: ["Voiced labiodental fricative [v]", WIKI("Voiced_labiodental_fricative")],
+  x: ["Voiceless velar fricative [x]", WIKI("Voiceless_velar_fricative")],
+  wh: ["Voiceless labial-velar fricative [ʍ]", WIKI("Voiceless_labial%E2%80%93velar_fricative")],
+  h: ["Voiceless glottal fricative [h]", WIKI("Voiceless_glottal_fricative")],
+  ng: ["Velar nasal [ŋ]", WIKI("Voiced_velar_nasal")],
+  flap: ["Flapped T [ɾ]", WIKI("Flapping")],
+  seeing: ["Seeing Speech consonant chart (sound + animation)", "https://www.seeingspeech.ac.uk/ipa-charts/?chart=1&datatype=3&speaker=1"]
+};
+
+const SENT = {
+  R: "Rory's car was parked further down the road, near the water.",
+  L: "Lily will feel a little ill if she leaves the hall.",
+  H: "Harry hid his hat behind the house on the hill.",
+  NG: "Singing in the morning is something we're bringing back.",
+  TH: "Three thin thieves thought their brother was there.",
+  T: "Put the kettle on, Pat, it's a bit after twenty to two."
+};
+
+/* zone keys map to points on the diagram */
+const ZONES = {
+  lips:[36,141], front:[72,134], ridge:[80,114], hard:[122,104], soft:[178,116],
+  back:[160,140], pharynx:[204,190], nasal:[128,80], low:[110,165], chest:[200,246]
+};
+
+const ACCENTS = [
+{ id:"rp", name:"RP / Standard Southern British", short:"RP", group:"England", where:"Southern England; the traditional stage and broadcast standard",
+  tags:["Non-rhotic","H kept","Long BATH"],
+  intro:"The accent of most classical British theatre training. Modern Standard Southern British is looser than the clipped 1950s version; aim for the modern one unless the period asks otherwise.",
+  samples:[["england-1","IDEA England 1","M","50s","Central and southern England"],["england-2","IDEA England 2","F","20s","RP group, location not given"],["england-63","IDEA England 63","F","","Surrey"]],
+  hesitation:"“Er…” [ɜː], long and level, made with a relaxed jaw.",
+  setting:{lips:"Neutral, with clear rounding only on rounded vowels (GOOSE, THOUGHT, LOT).",jaw:"Relaxed and moderately open. No clenching.",tongue:"Body sits mid and slightly back; the tip stays light and active behind the top teeth.",palate:"Soft palate raised. Very little nasality."},
+  zone:{key:"ridge", second:"hard", text:"Forward and central: the sound sits around the gum ridge behind the top teeth and spreads across the hard palate. Think of placing the words just behind your front teeth."},
+  tone:{text:"Clear and measured. A wide pitch range used for emphasis, with firm falls at the ends of statements. Understated rather than emphatic; meaning carried by stress more than volume.", tune:[[0,40],[1,30],[2,34],[3,24],[4,30],[5,60],[6,78]], tuneLabel:"Step-down then a firm fall"},
+  cons:[
+    {k:"R",ipa:"[ɹ]",d:"Non-rhotic: R is only sounded before a vowel. “Car”, “parked” and “further” have no R. Linking R joins words (“far‿away”), and intrusive R appears in “law(r) and order”.",ref:["approxR"]},
+    {k:"L",ipa:"[l] / [ɫ]",d:"Clear L before vowels (“Lily”, “leaves”); dark L at the ends of words and before consonants (“feel”, “ill”, “hall”).",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Always sounded on stressed words. Dropped only on weak forms like “has”, “his” and “her” in quick speech.",ref:["h"]},
+    {k:"NG",ipa:"[ŋ]",d:"Clean velar nasal with no G released after it: “singing” [ˈsɪŋɪŋ]. Avoid an -in' ending unless playing a very old upper-class character (“huntin', shootin'”).",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Tongue tip lightly touching the back of the top teeth. Never F or V.",ref:["th","dh"]},
+    {k:"T",ipa:"[tʰ] / [ʔt]",d:"Crisp, aspirated T at the start of stressed syllables (“two”, “twenty”). Modern speakers often glottalise T before another consonant (“football”, “it's a bit”) but not between vowels (“kettle”, “water” keep a full T).",ref:["glottal"]}
+  ],
+  vowels:[["TRAP / BATH","Split: TRAP [æ] “cat”, BATH [ɑː] “bath, dance, after”."],["STRUT / FOOT","Split: “cup” [ʌ] differs from “put” [ʊ]."],["GOAT","[əʊ], starting central: “no, road”."],["PRICE","[aɪ]."],["LOT","Rounded [ɒ]: “hot, top”."],["lettER / happY","Final schwa [ə]; happY tense [i]."]],
+  ways:{image:"Think of a newsreader handing over to the weather: composed, unhurried, every word given its full shape.",phrase:"“I'd rather not, actually. After you.”",laban:"Try Gliding (direct, light, sustained) as a starting point and adjust for status.",pitfalls:["Over-rounding vowels into a 1940s parody.","Losing T between vowels: “water” keeps its T.","Adding R to the ends of words."]}
+},
+{ id:"cockney", name:"Cockney / London", short:"Cockney", group:"England", where:"East and South London, traditionally within earshot of Bow Bells",
+  tags:["Glottal T","TH fronting","H dropping","L vocalisation"],
+  intro:"Traditional working-class London. Many younger Londoners now speak Multicultural London English, which shares some consonants but differs in vowels and rhythm, so check which one the character needs.",
+  samples:[["england-42","IDEA England 42","M","44","Dagenham and south London"],["england-110","IDEA England 110","M","30","Holborn and Greenwich"],["england-62","IDEA England 62","F","21","South Norwood, south-east London"]],
+  hesitation:"“Erm…” [ɜːm], short and pushed slightly through the nose.",
+  setting:{lips:"Spread and fairly lax at the corners; little rounding.",jaw:"Fairly closed and held firm.",tongue:"Body pulled back and low; the tip is less active than in RP.",palate:"Slightly lowered, giving a light nasal edge."},
+  zone:{key:"back", second:"nasal", text:"Back and slightly nasal. The vowels sit towards the back of the tongue while the energy of the consonants is thrown forward to the lips."},
+  tone:{text:"Quick, punchy and confident. Big pitch jumps on the stressed word, quick falls, a lot of rhythm. Wry, with an undertone of performance.", tune:[[0,50],[1,20],[2,55],[3,45],[4,15],[5,60],[6,75]], tuneLabel:"Sharp jumps, quick falls"},
+  cons:[
+    {k:"R",ipa:"[ɹ] / [ʋ]",d:"Non-rhotic like RP. Some younger speakers use a lip R [ʋ] that sounds close to W (“Wory”).",ref:["approxR","labioR"]},
+    {k:"L",ipa:"[o] / [ʊ]",d:"L vocalisation: dark L turns into a vowel. “Feel” [fɪːo], “ill” [ɪo], “hall” [hɔːo], “little” [lɪʔo].",ref:["darkL"]},
+    {k:"H",ipa:"∅",d:"H dropping: “'Arry 'id 'is 'at be'ind the 'ouse on the 'ill.”",ref:["h"]},
+    {k:"NG",ipa:"[n] / [ŋk]",d:"-ing becomes -in: “singin' in the mornin'”. In “something” and “nothing” you may hear [ŋk]: “somefink”, “nuffink”.",ref:["ng"]},
+    {k:"TH",ipa:"[f] [v] / [d]",d:"TH fronting: “free fin fieves fought”. Voiced TH between vowels becomes V (“bruvver”); at the start of words it often becomes D (“dat”, “dere”).",ref:["f","v"]},
+    {k:"T",ipa:"[ʔ]",d:"Glottal stop for T between vowels and at the ends of words: “pu' the ke'le on, Pa', i's a bi' af'er twen'y”. Strong aspirated T at the start of stressed words (“two”).",ref:["glottal"]}
+  ],
+  vowels:[["FACE","Opens towards [æɪ]: “day” sounds close to RP “die”."],["PRICE","Backed [ɑɪ]: “my” towards “moy”."],["MOUTH","Smoothed [æː] or [æə]: “house” [æːs]."],["GOAT","[ʌʊ]: “no” towards “nah-oo”."],["FLEECE","Slightly gliding [əi]: “tea”."],["BATH","Long [ɑː] like RP."]],
+  ways:{image:"A market trader working a crowd: quick, sharp, always selling, eyes everywhere.",phrase:"“Leave it out, mate, I was only 'avin' a laugh.”",laban:"Flicking and Dabbing (light, quick) for banter; Punching when the stakes rise.",pitfalls:["Applying every feature to every word. Real speakers vary.","Mixing in MLE vowels for an older character.","Glottalising the T in stressed starts like “two”."]}
+},
+{ id:"estuary", name:"Estuary English", short:"Estuary", group:"England", where:"Essex, Kent and the outer south-east along the Thames",
+  tags:["Partial glottal T","L vocalisation","H kept"],
+  intro:"Sits between RP and Cockney. Useful for a wide range of contemporary south-east characters.",
+  samples:[["england-90","IDEA England 90","F","19","Billericay, Essex"],["england-77","IDEA England 77","F","23","Brightlingsea and Colchester, Essex"],["england-113","IDEA England 113","M","27","Maidstone and Ashford, Kent"]],
+  hesitation:"“Erm…” [ɜːm], relaxed, slightly falling.",
+  setting:{lips:"Loosely spread.",jaw:"Relaxed and fairly open, looser than Cockney.",tongue:"Body mid to back, tip relaxed.",palate:"Mostly raised; a little nasality in some speakers."},
+  zone:{key:"hard", second:"back", text:"Central, with a slight pull towards the back of the mouth. Less forward than RP, less tight than Cockney."},
+  tone:{text:"Casual and easy-going. Narrower range than Cockney, with relaxed falls and a lot of flat, conversational stretches.", tune:[[0,45],[1,40],[2,42],[3,38],[4,44],[5,58],[6,64]], tuneLabel:"Flat, relaxed fall"},
+  cons:[
+    {k:"R",ipa:"[ɹ]",d:"Non-rhotic. Some speakers have a lip R [ʋ].",ref:["approxR","labioR"]},
+    {k:"L",ipa:"[o]",d:"L vocalisation as in Cockney, but often lighter: “feel”, “hall”.",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Usually kept. This is the clearest line between Estuary and Cockney.",ref:["h"]},
+    {k:"NG",ipa:"[ŋ] / [n]",d:"Mix of -ing and -in depending on how casual the moment is.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Mostly kept as TH; younger speakers may front to F and V.",ref:["th","f"]},
+    {k:"T",ipa:"[ʔ] / [t]",d:"Glottal T at the ends of words and before consonants (“pu' the”, “i's a bi'”), but often a full T between vowels (“kettle”, “water”). Yod coalescence: “Tuesday” as “Choosday”, “tune” as “choon”.",ref:["glottal"]}
+  ],
+  vowels:[["FACE","[ʌɪ] or [æɪ], milder than Cockney."],["PRICE","[ɑɪ]."],["MOUTH","[æʊ]."],["GOAT","[ʌʊ]."],["GOOSE","Fronted [ʉː]: “food”, “you”."],["BATH","Long [ɑː]."]],
+  ways:{image:"Leaning on the bar after work, catching up with an old mate. Nothing to prove.",phrase:"“To be fair, it was a bit of a nightmare getting here.”",laban:"Floating (indirect, light, sustained) gives the unbothered ease.",pitfalls:["Tipping into full Cockney by dropping H.","Over-glottalising between vowels."]}
+},
+{ id:"scouse", name:"Scouse", short:"Scouse", group:"England", where:"Liverpool and Merseyside",
+  tags:["K and T softened","Nasal","No FOOT/STRUT split"],
+  intro:"One of the most distinctive accents in England. The voice quality and the softened consonants matter more than any single vowel.",
+  samples:[["england-16","IDEA England 16","M","31","Liverpool"],["england-104","IDEA England 104","M","33","Liverpool"],["england-17","IDEA England 17","F","51","Liverpool"],["england-18","IDEA England 18","F","31","Liverpool"]],
+  hesitation:"“Errr…” [ɛː], high, with the back of the tongue lifted and some air through the nose.",
+  setting:{lips:"Slightly spread, fairly lax.",jaw:"Fairly closed.",tongue:"Back of the tongue raised towards the soft palate (velarised). The whole tongue feels bunched up and back.",palate:"Lowered, giving the nasal, blocked-nose quality often called adenoidal."},
+  zone:{key:"soft", second:"nasal", text:"High and back, up behind the nose. Feel the sound buzzing where the back of the tongue nearly meets the soft palate."},
+  tone:{text:"Bright, fast and high in pitch. Statements often rise or rise-fall at the end, giving a sing-song quality. Quick wit and lots of energy.", tune:[[0,48],[1,40],[2,52],[3,36],[4,46],[5,26],[6,40]], tuneLabel:"Rise at the end, then a little fall"},
+  cons:[
+    {k:"R",ipa:"[ɾ]",d:"Non-rhotic. Between vowels R is often a quick tap: “very”, “sorry”, “Rory”.",ref:["tap"]},
+    {k:"L",ipa:"[l]",d:"Generally clear, even at the ends of words.",ref:["darkL"]},
+    {k:"H",ipa:"∅ / [h]",d:"Often dropped, especially in quick speech.",ref:["h"]},
+    {k:"NG",ipa:"[ŋɡ]",d:"Many speakers release a G: “sing” [sɪŋɡ], “singing” [ˈsɪŋɡɪn].",ref:["ng"]},
+    {k:"TH",ipa:"[t̪] [d̪]",d:"TH often becomes a dental stop: “dis”, “dat”, “tree tin tieves”. Keep the tongue on the teeth.",ref:["th","dh"]},
+    {k:"T",ipa:"[ts] / [h] / [ɾ]",d:"Lenition. T between vowels and at word ends becomes a hissy [ts] or [s] (“water” [ˈwɔːtsə]), word-final T in short words can become H (“what” [wɒh], “it” [ɪh]), and T before a vowel can become R (“gerrup”, “a lorra”).",ref:["glottal","tap"]},
+    {k:"K",ipa:"[x]",d:"The signature: K between vowels and at the ends of words becomes a fricative like Scottish “loch”. “Back” [bax], “like” [laɪx], “kettle” [ˈkxɛtsəl].",ref:["x"]}
+  ],
+  vowels:[["STRUT / FOOT","No split: “cup” and “put” both [ʊ]."],["BATH","Short [a]: “bath” rhymes with “math”."],["NURSE / SQUARE","Merged [ɛː]: “fur” and “fair” sound the same."],["GOAT","[ɛʊ] or [əʊ]."],["FACE","[eɪ]."],["happY","Tense [i], often long."]],
+  ways:{image:"Telling a story to your mates in the pub, everyone talking over everyone, and you have to be funnier to keep the floor.",phrase:"“Are you comin' to the match or what, la?”",laban:"Flicking (indirect, light, quick) suits the speed and humour.",pitfalls:["Playing the nasality so hard it becomes a cold.","Forgetting the K and T lenition, which is what makes it Scouse.","Using Mancunian vowels: the two sit close on a map but differ."]}
+},
+{ id:"geordie", name:"Geordie", short:"Geordie", group:"England", where:"Newcastle upon Tyne and Tyneside",
+  tags:["Glottalised P T K","H kept","Clear L"],
+  intro:"Tyneside speech, with a lilting tune and very distinctive vowels. Unusually for England, H is kept.",
+  samples:[["england-23","IDEA England 23","M","24","Washington, Tyne and Wear"],["england-13","IDEA England 13","F","43","Newcastle"],["england-19","IDEA England 19","F","39","Newcastle"],["england-25","IDEA England 25","F","19","Newcastle"]],
+  hesitation:"“Eh…” [eː], forward, fairly high and sustained.",
+  setting:{lips:"Fairly spread; rounded firmly for GOAT and THOUGHT.",jaw:"Fairly closed.",tongue:"Forward and high. The front of the tongue does a lot of the work.",palate:"Raised; not especially nasal."},
+  zone:{key:"hard", second:"front", text:"Forward and high, on the hard palate just behind the gum ridge. Bright and ringing."},
+  tone:{text:"Lilting and musical. Statements often finish on a rise or a level high note, which can sound like a question to southern ears. Warm and direct.", tune:[[0,52],[1,44],[2,50],[3,42],[4,46],[5,34],[6,30]], tuneLabel:"Level, then rising finish"},
+  cons:[
+    {k:"R",ipa:"[ɹ] (older [ʁ])",d:"Non-rhotic today. Older rural Northumbrian speakers used a uvular R (the Northumbrian burr), now rare.",ref:["approxR","uvularR"]},
+    {k:"L",ipa:"[l]",d:"Clear L in all positions, including “feel”, “ill”, “hall”.",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Kept. Do not drop it.",ref:["h"]},
+    {k:"NG",ipa:"[n]",d:"-ing usually -in: “singin' in the mornin'”.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Usually kept as TH.",ref:["th","dh"]},
+    {k:"T",ipa:"[ʔt] / [ʔp] / [ʔk]",d:"Glottal reinforcement: P, T and K between vowels have a glottal catch made at the same moment (“kettle”, “paper”, “pretty”), heard as a creaky, swallowed stop rather than a plain glottal stop.",ref:["glottal"]}
+  ],
+  vowels:[["GOAT","[oː] or [ɵː], pure and long: “coat”, “road”."],["FACE","[eː], pure: “day”, “make”."],["NURSE","Rounded [ɔː] or [øː]: “work” can sound like “walk”."],["STRUT / FOOT","No split: [ʊ]."],["MOUTH","[ʉː] in traditional words: “toon” for town."],["lettER","Open [ɐ]: “water” [ˈwɔːʔtɐ]."]],
+  ways:{image:"Shouting the craic across a busy quayside: friendly, upfront, quick to laugh.",phrase:"“Howay, man, we'll be late for the match.”",laban:"Dabbing (direct, light, quick) for the bright, bouncy rhythm.",pitfalls:["Dropping H like most northern accents.","Missing the long pure FACE and GOAT vowels."]}
+},
+{ id:"manc", name:"Mancunian", short:"Manc", group:"England", where:"Manchester and Salford",
+  tags:["No FOOT/STRUT split","Open final vowels","Deadpan"],
+  intro:"Manchester and Salford. Flatter and drier than Scouse, with drawn-out final vowels.",
+  samples:[["england-43","IDEA England 43","M","34","Salford"],["england-61","IDEA England 61","M","27","Salford"],["england-10","IDEA England 10","F","20s","Manchester"],["england-92","IDEA England 92","F","78","Manchester"]],
+  hesitation:"“Errr…” [ɛː], low and open, trailing off.",
+  setting:{lips:"Loose and fairly neutral.",jaw:"Drops easily, especially on final vowels.",tongue:"Low and relaxed; tip fairly lazy.",palate:"Slightly lowered; a little nasal."},
+  zone:{key:"low", second:"back", text:"Low and towards the back, in the bowl of the mouth. Let the jaw hang on the ends of phrases."},
+  tone:{text:"Dry and deadpan with a narrow pitch range. Phrases often flatten out and the final vowel is stretched. Laconic rather than lively.", tune:[[0,46],[1,46],[2,48],[3,46],[4,50],[5,56],[6,58]], tuneLabel:"Narrow, flat, drawn-out end"},
+  cons:[
+    {k:"R",ipa:"[ɹ]",d:"Non-rhotic.",ref:["approxR"]},
+    {k:"L",ipa:"[ɫ]",d:"Fairly dark L in most positions.",ref:["darkL"]},
+    {k:"H",ipa:"∅",d:"Commonly dropped.",ref:["h"]},
+    {k:"NG",ipa:"[ŋɡ]",d:"Often a G released after NG: “singing” [ˈsɪŋɡɪŋɡ], “bringing back”.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Usually TH; some younger speakers front to F and V.",ref:["th","f"]},
+    {k:"T",ipa:"[ʔ] / [ɹ]",d:"Glottal T at word ends and before consonants (“pu' the”, “a bi'”). T between words before a vowel often becomes R: “gerroff”, “a lorrov”.",ref:["glottal"]}
+  ],
+  vowels:[["STRUT / FOOT","No split: “cup” [kʊp]."],["BATH","Short [a]."],["happY","Open [ɛ] or [ɪ], drawn out: “city” as “citeh”."],["lettER","Open, sometimes [ɛ]: “Manchester” with a long last syllable."],["GOAT","[ɔʊ] or [oː]."],["FACE","[eɪ] or [eː]."]],
+  ways:{image:"Leaning on a wall outside a gig, completely unimpressed by everything, and funny with it.",phrase:"“It's not bad, that, to be honest. Could be worse.”",laban:"Wringing or Pressing (sustained, strong) for the weight; Floating for the ease.",pitfalls:["Adding Scouse sing-song.","Forgetting to drop the jaw on final vowels."]}
+},
+{ id:"yorkshire", name:"Yorkshire (West)", short:"Yorkshire", group:"England", where:"Leeds, Bradford and the West Riding",
+  tags:["Pure vowels","T' for the","Voicing assimilation"],
+  intro:"West Yorkshire. Sheffield (South Yorkshire) is close but has its own colour; IDEA England 111 is a Sheffield speaker if you need it.",
+  samples:[["england-117","IDEA England 117","M","37","Leeds"],["england-109","IDEA England 109","M","37","Bradford"],["england-55","IDEA England 55","F","91","Greetland, Calderdale"],["england-111","IDEA England 111","M","35","Sheffield (South Yorkshire)"]],
+  hesitation:"“Er…” [ɜː], level and steady.",
+  setting:{lips:"Neutral, not much rounding or spreading.",jaw:"Steady, moderately open.",tongue:"Body mid to back; settles rather than moving.",palate:"Raised; not nasal."},
+  zone:{key:"back", second:"low", text:"Back and solid, in the middle-back of the mouth. The vowels feel planted rather than gliding."},
+  tone:{text:"Steady, blunt and measured. Falling intonation, strong stresses, nothing wasted. Plain-speaking.", tune:[[0,40],[1,38],[2,44],[3,42],[4,52],[5,62],[6,70]], tuneLabel:"Steady fall"},
+  cons:[
+    {k:"R",ipa:"[ɹ] / [ɾ]",d:"Non-rhotic. Tapped R between vowels in some speakers.",ref:["approxR","tap"]},
+    {k:"L",ipa:"[l]",d:"Clearer L than in the south, especially in West Yorkshire.",ref:["darkL"]},
+    {k:"H",ipa:"∅",d:"Commonly dropped.",ref:["h"]},
+    {k:"NG",ipa:"[n]",d:"-ing as -in.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð] / t'",d:"TH kept in most words, but “the” reduces to a T or a glottal catch: “in t' house”, “down t' road”.",ref:["th","glottal"]},
+    {k:"T",ipa:"[t] / [ʔ] / [ɹ]",d:"T to R between words (“gerroff”, “shurrup”). Voicing assimilation: a voiced consonant becomes voiceless before a voiceless one, so “Bradford” sounds like “Bratford” and “wide time” like “white time”.",ref:["glottal"]}
+  ],
+  vowels:[["FACE","Pure [eː]: “make” [meːk]."],["GOAT","Pure [oː] or [ɔː]: “home” [oːm]."],["STRUT / FOOT","No split: [ʊ]."],["BATH","Short [a]."],["PRICE","Often [aː] before voiced sounds: “time”."],["happY","Lax [ɪ] or [ɛ] in West Yorkshire."]],
+  ways:{image:"Saying exactly what you think to someone who's wasted your time, and then putting the kettle on.",phrase:"“I'm not being funny, but I said that last week.”",laban:"Pressing (direct, strong, sustained) for the plainness.",pitfalls:["Making FACE and GOAT glide like southern vowels.","Overusing t' as a comedy marker."]}
+},
+{ id:"brummie", name:"Brummie", short:"Brummie", group:"England", where:"Birmingham and the West Midlands conurbation",
+  tags:["PRICE as “oy”","Falling tune","Nasal"],
+  intro:"Birmingham. The Black Country next door is related but distinct. Brummie is often mocked, so play the person, not the stereotype.",
+  samples:[["england-103","IDEA England 103","M","22","Birmingham"],["england-4","IDEA England 4","M","20s","Stratford-upon-Avon and Birmingham"],["england-102","IDEA England 102","F","63","Birmingham"]],
+  hesitation:"“Er…” [ʌː], low, nasal, sliding downwards.",
+  setting:{lips:"Lax, slightly spread.",jaw:"Fairly closed, not much movement.",tongue:"Body raised at the back; tip relaxed.",palate:"Lowered: a definite nasal colour."},
+  zone:{key:"nasal", second:"soft", text:"Up in the nose and the back of the mouth. Let the sound resonate behind the nose with little jaw movement."},
+  tone:{text:"Falling and fairly flat. Statements drop at the end to a low pitch, which can sound downbeat to outsiders. Gentle and unhurried.", tune:[[0,36],[1,40],[2,38],[3,46],[4,52],[5,66],[6,80]], tuneLabel:"Gradual drop to a low finish"},
+  cons:[
+    {k:"R",ipa:"[ɾ] / [ɹ]",d:"Non-rhotic. Often tapped between vowels.",ref:["tap"]},
+    {k:"L",ipa:"[l] / [ɫ]",d:"Mostly clear before vowels, darker at the ends of words.",ref:["darkL"]},
+    {k:"H",ipa:"∅",d:"Often dropped.",ref:["h"]},
+    {k:"NG",ipa:"[ŋɡ]",d:"G released after NG: “sing” [sɪŋɡ], “singing” [ˈsɪŋɡɪŋɡ].",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Usually TH.",ref:["th","dh"]},
+    {k:"T",ipa:"[ʔ] / [ɾ]",d:"Glottal T at word ends; tapped T between vowels in some speakers.",ref:["glottal","tap"]}
+  ],
+  vowels:[["PRICE","[ɔɪ]: “my” sounds close to “moy”, “nice” to “noice”."],["FACE","[ʌɪ]: “day” sounds close to “die”."],["GOAT","[ʌʊ]: “no” [nʌʊ]."],["FLEECE","[əi]: “see” glides."],["STRUT / FOOT","No split: [ʊ]."],["BATH","Short [a]."]],
+  ways:{image:"Gently talking a friend down from a bad day, slow and warm, with a dry joke at the end.",phrase:"“Ar, it's alroight, bab. Don't worry about it.”",laban:"Floating (indirect, light, sustained) for the ease of the falling tune.",pitfalls:["Playing the falling tune as sadness.","Forgetting the nasal resonance, which carries the accent."]}
+},
+{ id:"westcountry", name:"West Country (Bristol & Somerset)", short:"West Country", group:"England", where:"Bristol, Somerset, Devon and Cornwall",
+  tags:["Rhotic","Bristol L","Long BATH and TRAP"],
+  intro:"The south-west is the main area of England that still sounds its R. Bristol is the city version; rural Somerset and Devon are broader.",
+  samples:[["england-108","IDEA England 108","M","51","Bristol"],["england-112","IDEA England 112","M","50","Bristol"],["england-52","IDEA England 52","M","60s","Somerset"],["england-70","IDEA England 70","F","21","Torquay, Devon (no female Bristol or Somerset speaker on IDEA)"]],
+  hesitation:"“Errr…” [ɚː], with the tongue tip curled back.",
+  setting:{lips:"Relaxed, slightly rounded.",jaw:"Loose and fairly open.",tongue:"Tip curled up and back (retroflex) or the body bunched for R. This colours the vowels around it.",palate:"Raised; warm, not nasal."},
+  zone:{key:"hard", second:"low", text:"Middle of the mouth, under the curled tongue tip. Warm and round, with the R colouring everything near it."},
+  tone:{text:"Warm, slow and rolling. Unhurried, with gentle rises and falls. Friendly and easy.", tune:[[0,48],[1,36],[2,44],[3,34],[4,46],[5,54],[6,60]], tuneLabel:"Rolling, gentle fall"},
+  cons:[
+    {k:"R",ipa:"[ɻ] / [ɚ]",d:"Rhotic: R is sounded after vowels, with the tongue tip curled back. “Car”, “parked”, “further”, “water” all have R.",ref:["retroR"]},
+    {k:"L",ipa:"[ɫ] / Bristol L",d:"Dark L. In Bristol, words ending in a schwa can gain an L: “idea” as “ideal”, “area” as “areal”. This is usually given as the reason the city's old name, Bristow, became Bristol.",ref:["darkL"]},
+    {k:"H",ipa:"∅",d:"Often dropped.",ref:["h"]},
+    {k:"NG",ipa:"[n]",d:"-ing as -in.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Usually TH; some younger Bristol speakers front to F and V.",ref:["th"]},
+    {k:"T",ipa:"[ʔ] / [ɾ]",d:"Glottal T at word ends; tapped T between vowels in rural speakers (“bitter”). Traditional rural speakers voice F and S at the starts of words (“zider”, “varmer”), now mostly older people.",ref:["glottal","tap"]}
+  ],
+  vowels:[["TRAP / BATH","Both [aː], long and open: “cat”, “bath”, “dance”."],["lettER","R-coloured [ɚ]."],["GOAT","Pure [oː]."],["FACE","Pure [eː] in rural speech."],["STRUT","[ʌ] or [ə]; there is a split, unlike the north."],["NURSE","R-coloured [ɝː]."]],
+  ways:{image:"Leaning on a gate on a warm afternoon, in no rush, glad of the company.",phrase:"“Where's that to? I'll see you later, my lover.”",laban:"Gliding (direct, light, sustained) for the warmth; Floating for rural ease.",pitfalls:["Playing a farmer stereotype. Bristol is a city accent.","Losing the R after vowels."]}
+},
+{ id:"wales", name:"South Wales (Valleys)", short:"South Wales", group:"Wales", where:"Rhondda, Merthyr, Pontypridd, Cardiff and Swansea",
+  tags:["Sing-song","Doubled consonants","Tapped R"],
+  intro:"Shaped by the Welsh language underneath it. Cardiff is a separate city accent with long [aː] vowels (“Caaardiff”); the samples here lean Valleys.",
+  samples:[["wales-5","IDEA Wales 5","M","20","Rhondda Cynon Taff"],["wales-2","IDEA Wales 2","M","20s","Pontypridd and Swansea"],["wales-7","IDEA Wales 7","F","36","Barry, near Cardiff"],["wales-6","IDEA Wales 6","F","20","Hirwaun and Carmarthen"]],
+  hesitation:"“Errr…” [øː], forward with rounded lips, rising slightly.",
+  setting:{lips:"Active; rounding for NURSE and GOAT.",jaw:"Relaxed but mobile.",tongue:"Forward and high; the tip is very active and consonants are firm.",palate:"Raised; bright, not nasal."},
+  zone:{key:"front", second:"ridge", text:"Forward, on the teeth and gum ridge. Bright and ringing, with energy on every consonant."},
+  tone:{text:"Musical and lilting. The stressed syllable is often low and the next one jumps up, so the melody rises where English expects a fall. Rhythm is nearer syllable-timed: each syllable gets more equal weight.", tune:[[0,50],[1,62],[2,30],[3,58],[4,28],[5,52],[6,40]], tuneLabel:"Low stress, high follow-on syllable"},
+  cons:[
+    {k:"R",ipa:"[ɾ]",d:"Non-rhotic but tapped: “Rory”, “very”, “sorry” with a light flick.",ref:["tap"]},
+    {k:"L",ipa:"[l]",d:"Clear L in all positions.",ref:["darkL"]},
+    {k:"H",ipa:"∅ / [h]",d:"Often dropped in the south; kept in the north.",ref:["h"]},
+    {k:"NG",ipa:"[n]",d:"-ing as -in.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Kept.",ref:["th","dh"]},
+    {k:"T",ipa:"[tʰ] / [tː]",d:"Strongly aspirated P, T and K. Consonants between a short stressed vowel and the next syllable are lengthened (geminated): “kettle” [ˈkʰɛtːəl], “bit after”, “money” [ˈmʌnːi].",ref:["seeing"]}
+  ],
+  vowels:[["NURSE","Rounded [øː]: “further”, “work”."],["FACE","Pure [eː]."],["GOAT","Pure [oː]."],["STRUT","Central [ə]: “cup” [kəp]."],["BATH","Short [a] in the Valleys; long [aː] in Cardiff."],["happY","Tense [i]."]],
+  ways:{image:"Telling a story that gets bigger every time you tell it, to a room that already knows the ending.",phrase:"“I'll do it now in a minute, I will.”",laban:"Dabbing (direct, light, quick) for the bouncing tune.",pitfalls:["Copying the tune but keeping English stress-timing.","Treating Cardiff and the Valleys as one accent."]}
+},
+{ id:"glasgow", name:"Scottish: Glasgow", short:"Glasgow", group:"Scotland", where:"Glasgow and the west-central belt",
+  tags:["Rhotic","Glottal T","Short vowels"],
+  intro:"Urban west of Scotland. Scottish vowels follow different length rules from English ones, so listen to the recordings before the notes.",
+  samples:[["scotland-9","IDEA Scotland 9","M","33","Johnstone, near Glasgow"],["scotland-27","IDEA Scotland 27","M","30","Airdrie, near Glasgow"],["scotland-10","IDEA Scotland 10","F","23","Glasgow"],["scotland-15","IDEA Scotland 15","F","52","Glasgow and surrounding towns"]],
+  hesitation:"“Eh…” [e], short and clipped.",
+  setting:{lips:"Fairly spread, some tension.",jaw:"Firm and quite closed.",tongue:"Tip very active; body raised in the middle.",palate:"Raised."},
+  zone:{key:"ridge", second:"front", text:"Forward, on the tongue tip and the gum ridge. Compact and energetic."},
+  tone:{text:"Energetic and quick, with rising or rise-fall endings on statements. Strong rhythm and a lot of attack.", tune:[[0,50],[1,42],[2,48],[3,40],[4,46],[5,30],[6,44]], tuneLabel:"Rise-fall on the last stress"},
+  cons:[
+    {k:"R",ipa:"[ɾ] / [ɹ]",d:"Rhotic. Traditionally a tapped R; many younger Glaswegians weaken R after vowels until it is barely there, so check your sample.",ref:["tap","approxR"]},
+    {k:"L",ipa:"[ɫ]",d:"Dark L in all positions, including the start of words.",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Kept.",ref:["h"]},
+    {k:"NG",ipa:"[n]",d:"-ing often -in.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] / [h] / [f]",d:"Usually TH; “think” and “thing” can become [h] in broad speech, and younger speakers may use F.",ref:["th","f"]},
+    {k:"T",ipa:"[ʔ]",d:"Glottal T between vowels and at word ends: “wa'er”, “a bi' af'er”.",ref:["glottal"]},
+    {k:"CH / WH",ipa:"[x] [ʍ]",d:"Velar fricative in “loch”, “och”, “dreich”. WH is breathy [ʍ], so “which” and “witch” differ.",ref:["x","wh"]}
+  ],
+  vowels:[["FOOT / GOOSE","Merged [ʉ]: “foot” and “food” share a vowel."],["TRAP / BATH / PALM","All [a]."],["LOT / THOUGHT","Merged [ɔ]: “cot” and “caught” sound the same."],["FACE","Pure [e]."],["GOAT","Pure [o]."],["Length","Vowels are short except before R, V, Z, TH and at word ends (the Scottish Vowel Length Rule)."]],
+  ways:{image:"Winding up your pal in the queue at the chippy. Fast, sharp and affectionate.",phrase:"“Gonnae no dae that? Just, gonnae no?”",laban:"Punching or Slashing for confrontation; Flicking for banter.",pitfalls:["Drawing out vowels English-style.","Using the Edinburgh tune in Glasgow."]}
+},
+{ id:"edinburgh", name:"Scottish: Edinburgh", short:"Edinburgh", group:"Scotland", where:"Edinburgh and Lothian",
+  tags:["Rhotic","Lighter than Glasgow","Falling tune"],
+  intro:"Ranges from broad Leith speech to a gentle middle-class accent. Shares Scottish vowel patterns with Glasgow but usually sounds lighter.",
+  samples:[["scotland-24","IDEA Scotland 24","M","30","Edinburgh"],["scotland-23","IDEA Scotland 23","F","19","Edinburgh"],["scotland-6","IDEA Scotland 6","F","20s","Edinburgh (Duddingston)"]],
+  hesitation:"“Em…” [ɛm], soft and level.",
+  setting:{lips:"More rounding than Glasgow on back vowels.",jaw:"Relaxed and moderate.",tongue:"Tip active but lighter; body mid.",palate:"Raised."},
+  zone:{key:"ridge", second:"hard", text:"Forward and central, on the gum ridge and front of the hard palate. Clean and precise."},
+  tone:{text:"More measured than Glasgow, with statements usually falling. Clear and articulate.", tune:[[0,44],[1,36],[2,42],[3,38],[4,46],[5,58],[6,66]], tuneLabel:"Clean step-down"},
+  cons:[
+    {k:"R",ipa:"[ɹ] / [ɾ]",d:"Rhotic. Approximant in most speakers, tapped in some.",ref:["approxR","tap"]},
+    {k:"L",ipa:"[ɫ]",d:"Dark L in all positions.",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Kept.",ref:["h"]},
+    {k:"NG",ipa:"[ŋ] / [n]",d:"[ŋ] in careful speech, -in in casual speech.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Kept.",ref:["th","dh"]},
+    {k:"T",ipa:"[t] / [ʔ]",d:"Fuller T than Glasgow, with glottal T in casual speech.",ref:["glottal"]},
+    {k:"CH / WH",ipa:"[x] [ʍ]",d:"Velar fricative in “loch”. Breathy WH in “which”, “where”.",ref:["x","wh"]}
+  ],
+  vowels:[["FOOT / GOOSE","Merged [ʉ]."],["TRAP / BATH / PALM","All [a]."],["LOT / THOUGHT","Merged [ɔ]."],["FACE","Pure [e]."],["GOAT","Pure [o]."],["NURSE","Split by spelling in traditional speech: “bird” [ɪ], “word” [ʌ], “heard” [ɛ], all with R."]],
+  ways:{image:"A lawyer on the Royal Mile explaining something to a tourist with polite, exact patience.",phrase:"“Aye, it's just up the road there, on your left.”",laban:"Gliding (direct, light, sustained) for the precise, measured version.",pitfalls:["Making it sound English by losing R.","Over-broadening into Glasgow."]}
+},
+{ id:"belfast", name:"Northern Irish: Belfast", short:"Belfast", group:"Northern Ireland", where:"Belfast and the surrounding area",
+  tags:["Rhotic","Rising statements","Raised vowels"],
+  intro:"Ulster speech, distinct from Dublin and the south of Ireland. Rising statements are one of its strongest markers.",
+  samples:[["northern-ireland-8","IDEA Northern Ireland 8","M","25","Belfast"],["northern-ireland-3","IDEA Northern Ireland 3","F","20s","Belfast"],["northern-ireland-7","IDEA Northern Ireland 7","F","59","Belfast"]],
+  hesitation:"“Eh…” [e], quick, high and tight.",
+  setting:{lips:"Fairly spread.",jaw:"Fairly closed, little movement.",tongue:"Body raised and pushed forward; the tongue does most of the work instead of the jaw.",palate:"Raised."},
+  zone:{key:"hard", second:"ridge", text:"High and forward on the hard palate. The vowels are lifted and the sound is compact."},
+  tone:{text:"Statements commonly rise at the end, or rise and stay high. Quick, clipped and wry.", tune:[[0,52],[1,48],[2,50],[3,46],[4,44],[5,32],[6,26]], tuneLabel:"Rise and hold"},
+  cons:[
+    {k:"R",ipa:"[ɹ] / [ɻ]",d:"Rhotic, with a strong bunched or curled R after vowels: “car”, “further”, “water”.",ref:["approxR","retroR"]},
+    {k:"L",ipa:"[l]",d:"Clear L in all positions.",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Kept.",ref:["h"]},
+    {k:"NG",ipa:"[n]",d:"-ing usually -in.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] / [t̪]",d:"TH or a dental stop: “tree tin tieves”, with the tongue on the teeth.",ref:["th","dh"]},
+    {k:"T",ipa:"[ɾ] / [ʔ]",d:"T between vowels is often a tap: “water” [ˈwɑːɾəɹ], “kettle”, “a bit after”. Older speakers palatalise K and G before front vowels (“car” [kʲaɹ]).",ref:["tap","glottal"]}
+  ],
+  vowels:[["MOUTH","Fronted [əʉ]: “house”, “down”."],["FACE","[eː] or ingliding [iə]: “day”."],["GOAT","Pure [oː]."],["DRESS","Raised in some words: “bed” towards “bid”."],["Length","Short vowels often lengthened: “bag”."],["NURSE","R-coloured [ɚ]."]],
+  ways:{image:"Telling someone a story with a deadpan face, and only smiling at the punchline.",phrase:"“What about ye? Wee bit of a day, wasn't it?”",laban:"Dabbing (direct, light, quick) or Flicking for the quickness and dry humour.",pitfalls:["Using a southern Irish (Dublin or Cork) accent.","Letting statements fall at the end."]}
+},
+{ id:"ga", name:"General American", short:"General American", group:"United States", where:"Broadcast and standard stage American; no single region",
+  tags:["Rhotic","Flapped T","Short BATH"],
+  intro:"A neutral American accent, the US counterpart to RP. IDEA's General American page has fifteen voice and speech teachers reading the same passage, which is a good way to hear the target.",
+  samples:[["general-american-9","IDEA General American 9","M","","Paul Meier, voice teacher"],["general-american-1","IDEA General American 1","M","","Eric Armstrong, voice teacher"],["general-american-2","IDEA General American 2","F","","Rena Cook, voice teacher"],["general-american-12","IDEA General American 12","F","","Krista Scott, voice teacher"]],
+  hesitation:"“Uh…” [ʌ] or “um”, low, relaxed and slightly back.",
+  setting:{lips:"Relaxed, a little spread; less lip rounding than British accents.",jaw:"More open and relaxed than RP.",tongue:"Body bunched up and back for the R colouring; tip relaxed.",palate:"Slightly lowered, giving a light nasal warmth."},
+  zone:{key:"hard", second:"back", text:"The middle of the mouth, where the bunched tongue sits for R. The sound feels wider and further back than RP."},
+  tone:{text:"Smooth and continuous (legato), with linked words and fewer sharp pitch jumps than British English. Lower pitch, steady energy, gentle falls.", tune:[[0,42],[1,40],[2,44],[3,42],[4,48],[5,56],[6,62]], tuneLabel:"Smooth, linked, gentle fall"},
+  cons:[
+    {k:"R",ipa:"[ɹ] / [ɚ]",d:"Fully rhotic: every written R is sounded. “Car”, “parked”, “further”, “water”, “near”.",ref:["approxR","retroR"]},
+    {k:"L",ipa:"[ɫ]",d:"Dark L in all positions, including “Lily” and “leaves”.",ref:["darkL"]},
+    {k:"H",ipa:"[h]",d:"Kept.",ref:["h"]},
+    {k:"NG",ipa:"[ŋ]",d:"Clean [ŋ]; -in in casual speech.",ref:["ng"]},
+    {k:"TH",ipa:"[θ] [ð]",d:"Kept.",ref:["th","dh"]},
+    {k:"T",ipa:"[ɾ]",d:"T between vowels becomes a quick D-like flap: “water” [ˈwɑɾɚ], “kettle” [ˈkʰɛɾl̩], “a bit after” [ə bɪɾ ˈæftɚ], “Pat, it's”. After N, T may disappear: “twenty” [ˈtwɛni].",ref:["flap"]}
+  ],
+  vowels:[["TRAP / BATH","No split: both [æ]: “bath”, “dance”, “after”."],["LOT / PALM","Merged [ɑ]: “hot” [hɑt]."],["LOT / THOUGHT","Many speakers merge these too: “cot” = “caught”."],["GOAT","[oʊ]."],["GOOSE","No Y after T, D, N: “new” [nu], “Tuesday” [ˈtuzdeɪ]."],["lettER / NURSE","R-coloured [ɚ] [ɝ]."]],
+  ways:{image:"A friendly, capable local news anchor: open face, open vowels, nothing clipped.",phrase:"“Hey, how's it going? Did you get a chance to look at that?”",laban:"Gliding (direct, light, sustained) for the smooth, linked line.",pitfalls:["Pronouncing T between vowels as a crisp British T.","Stopping R at the ends of words.","Keeping British long BATH in “can't”, “dance”."]}
+}
+];
+
+const GROUPS = ["England","Wales","Scotland","Northern Ireland","United States"];
+const TABS = [["listen","Listen"],["found","Foundations"],["cons","Consonants"],["vowels","Vowels"],["ways","Ways in"],["notes","My notes"]];
+let state = { id: "method", tab: "listen", voice: "all" };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } } };
+
+function buildNav(){
+  const nav = $("#nav");
+  let h = `<button class="method-btn" data-id="method">How to use the kit</button>`;
+  for (const g of GROUPS){
+    const items = ACCENTS.filter(a => a.group === g);
+    h += `<div class="group"><h4>${g}</h4><ul>` + items.map(a => `<li><button data-id="${a.id}"><span>${esc(a.short)}</span></button></li>`).join("") + `</ul></div>`;
+  }
+  nav.innerHTML = h;
+  nav.addEventListener("click", e => { const b = e.target.closest("button[data-id]"); if (b) go(b.dataset.id); });
+  const pick = $("#pick");
+  pick.innerHTML = `<option value="method">How to use the kit</option>` + GROUPS.map(g => `<optgroup label="${g}">` + ACCENTS.filter(a=>a.group===g).map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("") + `</optgroup>`).join("");
+  pick.addEventListener("change", () => go(pick.value));
+}
+
+function go(id, tab){
+  state.id = id; if (tab) state.tab = tab;
+  try { history.replaceState(null, "", "#" + id); } catch(e) {}
+  store.set("ak-last", id);
+  render(); $("#main").scrollIntoView({block:"nearest"});
+}
+
+function zoneSVG(a){
+  const [x,y] = ZONES[a.zone.key], s = a.zone.second ? ZONES[a.zone.second] : null;
+  return `<svg viewBox="0 0 250 260" role="img" aria-label="Side view of the mouth showing the zone for ${esc(a.short)}">
+  <defs><radialGradient id="glow"><stop offset="0" stop-color="var(--spot)" stop-opacity=".95"/><stop offset="1" stop-color="var(--spot)" stop-opacity="0"/></radialGradient></defs>
+  <path d="M58,96 Q66,62 112,58 Q170,54 206,84 L212,120" fill="none" stroke="var(--tract)" stroke-width="2"/>
+  <path d="M58,96 Q42,86 30,98 Q30,110 56,110" fill="none" stroke="var(--tract)" stroke-width="2"/>
+  <path d="M66,116 Q82,102 104,99 Q140,93 170,102 Q192,110 198,130" fill="none" stroke="var(--tract)" stroke-width="2.5"/>
+  <circle cx="199" cy="136" r="5" fill="var(--tract-fill)" stroke="var(--tract)" stroke-width="2"/>
+  <path d="M214,96 Q220,160 216,250" fill="none" stroke="var(--tract)" stroke-width="2"/>
+  <path d="M28,132 Q24,118 40,116 L58,117 L58,130 Q44,136 28,132Z" fill="var(--tract-fill)" stroke="var(--tract)" stroke-width="2"/>
+  <path d="M28,152 Q44,146 58,151 L57,166 L40,170 Q26,166 28,152Z" fill="var(--tract-fill)" stroke="var(--tract)" stroke-width="2"/>
+  <path d="M58,116 L67,116 L64,137 L59,137Z" fill="var(--panel)" stroke="var(--tract)" stroke-width="1.6"/>
+  <path d="M58,150 L64,150 L66,168 L58,168Z" fill="var(--panel)" stroke="var(--tract)" stroke-width="1.6"/>
+  <path d="M64,152 Q78,132 112,124 Q156,116 182,138 Q198,160 196,214 L192,236 Q140,236 100,206 Q72,184 64,170Z" fill="var(--tongue)" stroke="var(--tract)" stroke-width="2" opacity=".85"/>
+  <path d="M190,228 L208,228 L208,250 L190,250Z" fill="none" stroke="var(--tract)" stroke-width="1.6"/>
+  ${s ? `<circle cx="${s[0]}" cy="${s[1]}" r="20" fill="url(#glow)" opacity=".55"/>` : ""}
+  <circle class="zone-glow" cx="${x}" cy="${y}" r="30" fill="url(#glow)"/>
+  <circle cx="${x}" cy="${y}" r="4" fill="var(--accent)"/>
+  <text x="6" y="146">lips</text><text x="70" y="94">gum ridge</text><text x="112" y="90">hard palate</text>
+  <text x="170" y="96">soft palate</text><text x="120" y="50">nasal cavity</text><text x="222" y="190">throat</text>
+  <text x="104" y="176">tongue</text><text x="160" y="246">larynx</text>
+  </svg>`;
+}
+
+function tuneSVG(a){
+  const pts = a.tone.tune, W = 480, H = 110, px = i => 20 + i * (W - 40) / (pts.length - 1), py = v => 10 + v;
+  const d = pts.map(([i,v],n) => (n ? "L" : "M") + px(i) + "," + py(v)).join(" ");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Schematic pitch line: ${esc(a.tone.tuneLabel)}">
+    <line x1="20" y1="20" x2="${W-20}" y2="20" stroke="var(--line)"/><line x1="20" y1="90" x2="${W-20}" y2="90" stroke="var(--line)"/>
+    <text x="20" y="14">high</text><text x="20" y="106">low</text>
+    <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${pts.map(([i,v]) => `<circle cx="${px(i)}" cy="${py(v)}" r="4" fill="var(--accent)"/>`).join("")}
+  </svg>`;
+}
+
+const refLinks = keys => keys.map(k => REF[k]).filter(Boolean).map(([l,u]) => `<a href="${u}" target="_blank" rel="noopener">Hear ${esc(l)} ↗</a>`).join("");
+
+function panel(a){
+  const t = state.tab;
+  if (t === "listen") return `<div class="panel">
+    <p style="margin:0;max-width:66ch">Listen three times before working on anything. First for the groove (rhythm, tune, energy), then for the vowels, then for the consonants. Each IDEA page has the speaker reading a set passage and talking freely, with a transcript.</p>
+    <div class="voice-filter" role="group" aria-label="Show voices">${[["all","All voices"],["M","Male"],["F","Female"]].map(([k,l]) => `<button data-voice="${k}" aria-pressed="${state.voice===k}">${l} <small>${k==="all" ? a.samples.length : a.samples.filter(s=>s[2]===k).length}</small></button>`).join("")}</div>
+    <div class="listen">${a.samples.filter(s => state.voice==="all" || s[2]===state.voice).map(([slug,label,sex,age,who]) => `<div class="sample"><span class="sex sex-${sex}">${sex==="M" ? "Male" : "Female"}${age ? " · " + esc(age) : ""}</span><strong>${esc(label)}</strong><span class="who">${esc(who)}</span><audio controls preload="metadata" data-file="${fileName(a,slug,sex,age)}"></audio><span class="missing" hidden>Not on this device yet. Tap Add recordings at the top and pick <code>${fileName(a,slug,sex,age)}</code>, or <a href="${IDEA(slug)}" target="_blank" rel="noopener">listen on IDEA</a> when you're online.</span></div>`).join("") || `<p class="note" style="margin:0">IDEA has no ${state.voice==="M" ? "male" : "female"} speaker for this accent yet. Try All voices.</p>`}</div>
+    <div class="note">More speakers: <a href="https://www.dialectsarchive.com/" target="_blank" rel="noopener">IDEA</a> · tongue and lip videos of UK accents on <a href="https://www.dynamicdialects.ac.uk/accent-map" target="_blank" rel="noopener">Dynamic Dialects</a> · short readings on the <a href="https://accent.gmu.edu/browse_language.php?function=find&amp;language=english" target="_blank" rel="noopener">Speech Accent Archive</a>.</div>
+  </div>`;
+  if (t === "found") return `<div class="panel">
+    <div class="found">
+      <div class="card"><span class="label">Setting</span><h3>Where the mouth sits at rest</h3>
+        <p>Find it through the hesitation sound: ${esc(a.hesitation)} Hold it, then notice each part.</p>
+        <dl class="setting"><dt>Lips</dt><dd>${esc(a.setting.lips)}</dd><dt>Jaw</dt><dd>${esc(a.setting.jaw)}</dd><dt>Tongue</dt><dd>${esc(a.setting.tongue)}</dd><dt>Soft palate</dt><dd>${esc(a.setting.palate)}</dd></dl>
+      </div>
+      <div class="card zone-fig"><span class="label">Zone</span><h3>Where the sound focuses</h3>
+        ${zoneSVG(a)}<p style="margin:0">${esc(a.zone.text)}</p>
+      </div>
+    </div>
+    <div class="card tune"><span class="label">Tone</span><h3>Pitch, rhythm and attitude</h3><p>${esc(a.tone.text)}</p>
+      ${tuneSVG(a)}<p class="saved" style="margin:4px 0 0">Schematic shape of a typical statement: ${esc(a.tone.tuneLabel)}. Count from one to ten in the accent to feel it.</p></div>
+  </div>`;
+  if (t === "cons") return `<div class="panel">
+    <p style="margin:0;max-width:66ch">Say each sentence in the accent, then check yourself against the free speech recordings. The links play a clean reference recording of the sound itself on Wikipedia, so you can hear the target before putting it in a word.</p>
+    <div class="cons">${a.cons.map(c => `<div class="con"><div class="sym">${esc(c.k)}<span class="ipa">${esc(c.ipa)}</span></div><div><p>${esc(c.d)}</p>${SENT[c.k] ? `<p class="sent">“${esc(SENT[c.k])}”</p>` : ""}<div class="refs">${refLinks(c.ref)}</div></div></div>`).join("")}</div>
+    <div class="note">See every consonant made inside the mouth (MRI, ultrasound and animation, with sound) on the <a href="${REF.seeing[1]}" target="_blank" rel="noopener">Seeing Speech IPA chart</a>.</div>
+  </div>`;
+  if (t === "vowels") return `<div class="panel">
+    <p style="margin:0;max-width:66ch">Vowels are grouped by J.C. Wells' keywords: every word in a set shares a vowel in a given accent. These are the sets where ${esc(a.short)} most differs from what you might default to.</p>
+    <div class="scroll"><table class="vowels"><thead><tr><th>Set</th><th>In ${esc(a.short)}</th></tr></thead><tbody>${a.vowels.map(([k,v]) => `<tr><td>${esc(k)}</td><td class="ipa-mix">${esc(v)}</td></tr>`).join("")}</tbody></table></div>
+    <div class="note">Full list of sets with example words: <a href="https://en.wikipedia.org/wiki/Lexical_set" target="_blank" rel="noopener">Lexical sets on Wikipedia</a>.</div>
+  </div>`;
+  if (t === "ways") return `<div class="panel"><div class="ways">
+    <div class="card"><span class="label">Image</span><p>${esc(a.ways.image)}</p></div>
+    <div class="card"><span class="label">Anchor phrase</span><p>${esc(a.ways.phrase)}</p><p class="saved">Say it until it feels like yours, then use it to drop into the accent before a scene.</p></div>
+    <div class="card"><span class="label">Laban effort to try</span><p>${esc(a.ways.laban)}</p></div>
+    <div class="card"><span class="label">Watch out for</span><ul class="plain">${a.ways.pitfalls.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>
+  </div></div>`;
+  if (t === "notes"){
+    const v = store.get("ak-notes-" + a.id) || "";
+    return `<div class="panel"><label class="label" for="notes-${a.id}">My notes on ${esc(a.short)}</label>
+      <textarea id="notes-${a.id}" placeholder="Sounds you keep missing, reference speakers you like, a role you're using it for...">${esc(v)}</textarea>
+      <span class="saved" id="saved">Saved in this browser only.</span></div>`;
+  }
+  return "";
+}
+
+function methodView(){
+  return `<div class="kit-head"><div><span class="label">Start here</span><h2>How to use the kit</h2><p>A routine for learning any accent in this kit, in the order the layers build on each other.</p></div></div>
+  <div class="panel method" style="margin-top:20px">
+    <ol class="steps">
+      <li><strong>Listen to the free speech.</strong> Three passes on the IDEA recordings: groove, then vowels, then consonants. Don't speak yet.</li>
+      <li><strong>Find the setting.</strong> Make the accent's hesitation sound (its “er” or “um”) and hold it. Notice lips, jaw, tongue and soft palate, then speak a neutral sentence from that position.</li>
+      <li><strong>Place the zone.</strong> Use the diagram to send the sound to the right part of the mouth. Hum, then count to ten, keeping the focus there.</li>
+      <li><strong>Get the tone.</strong> Count from one to ten copying the speaker's tune and rhythm. Then say a single line three ways inside that tune.</li>
+      <li><strong>Drill the consonants.</strong> Six sentences (R, L, H, NG, TH, T) plus any extra sound the accent has. Hear the reference recording, then the sentence.</li>
+      <li><strong>Check the vowels.</strong> Work only on the sets that differ from your own accent.</li>
+      <li><strong>Record and compare.</strong> Read the practice text below into your phone's voice recorder, play it back against the IDEA speaker, and note one thing to fix in My notes.</li>
+      <li><strong>Put it in the body.</strong> Use the image and Laban effort in Ways in, then improvise as the character for two minutes before touching the script.</li>
+    </ol>
+    <div class="card"><span class="label">Practice text</span><p style="margin:.4em 0 0;max-width:68ch">Rory's car was parked further down the road, near the water. Lily said she'd feel a little ill if she had to leave the hall, so Harry hid his hat behind the house on the hill and went to fetch it. “Put the kettle on, Pat,” he called. “It's a bit after twenty to two, and three thin thieves thought their brother was there.” Singing in the morning is something we're bringing back, whatever the weather.</p></div>
+    <div class="ways">
+      <div class="card"><span class="label">Terms</span><p><strong>Setting</strong>: the resting posture of lips, jaw, tongue and soft palate that the accent speaks from.</p><p><strong>Zone</strong>: where the sound focuses and resonates.</p><p><strong>Tone</strong>: the tune, rhythm, pitch range and attitude.</p></div>
+      <div class="card"><span class="label">Free sources used</span><ul class="plain">
+        <li><a href="https://www.dialectsarchive.com/" target="_blank" rel="noopener">IDEA</a>: free speech and a set passage from real speakers.</li>
+        <li><a href="https://www.seeingspeech.ac.uk/ipa-charts/?chart=1&amp;datatype=3&amp;speaker=1" target="_blank" rel="noopener">Seeing Speech</a>: every IPA sound with MRI, ultrasound and animation.</li>
+        <li><a href="https://www.dynamicdialects.ac.uk/accent-map" target="_blank" rel="noopener">Dynamic Dialects</a>: tongue and lip video of UK and world accents.</li>
+        <li><a href="https://accent.gmu.edu/" target="_blank" rel="noopener">Speech Accent Archive</a>: one paragraph read by thousands of speakers.</li>
+        <li><a href="https://www.theaccentkit.com/accent-kits/" target="_blank" rel="noopener">The Accent Kit</a>: paid kits in the same format, with vowel word lists.</li></ul></div>
+      <div class="card"><span class="label">Daily 15 minutes</span><ul class="plain"><li>3 min: listen to one IDEA sample.</li><li>2 min: setting and zone from the hesitation sound.</li><li>2 min: count to ten for tone.</li><li>5 min: consonant sentences.</li><li>3 min: record the practice text and note one fix.</li></ul></div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  document.querySelectorAll("#nav button[data-id]").forEach(b => b.setAttribute("aria-current", String(b.dataset.id === state.id)));
+  $("#pick").value = state.id;
+  const m = $("#main");
+  if (state.id === "method"){ m.innerHTML = methodView(); return; }
+  const a = ACCENTS.find(x => x.id === state.id);
+  m.innerHTML = `<div class="kit-head"><div><span class="label">${esc(a.group)} · ${esc(a.where)}</span><h2>${esc(a.name)}</h2><p>${esc(a.intro)}</p></div><div class="tags">${a.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div></div>
+    <div class="tabs" role="tablist">${TABS.map(([k,l]) => `<button role="tab" data-tab="${k}" aria-selected="${state.tab===k}">${l}</button>`).join("")}</div>
+    <div role="tabpanel">${panel(a)}</div>`;
+  m.querySelectorAll("audio[data-file]").forEach(au => { const u = recURL(au.dataset.file); if (u) au.src = u; else { au.hidden = true; au.nextElementSibling.hidden = false; } au.addEventListener("error", () => { au.hidden = true; au.nextElementSibling.hidden = false; }); });
+  m.querySelectorAll("audio[data-file]").forEach(au => au.addEventListener("play", () => m.querySelectorAll("audio").forEach(o => { if (o !== au) o.pause(); })));
+  const vf = m.querySelector(".voice-filter");
+  if (vf) vf.addEventListener("click", e => { const b = e.target.closest("button[data-voice]"); if (b){ state.voice = b.dataset.voice; store.set("ak-voice", state.voice); render(); } });
+  m.querySelector(".tabs").addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (b){ state.tab = b.dataset.tab; store.set("ak-tab", state.tab); render(); } });
+  const ta = m.querySelector("textarea");
+  if (ta) ta.addEventListener("input", () => { const ok = store.set("ak-notes-" + a.id, ta.value); $("#saved").textContent = ok ? "Saved in this browser only." : "This browser isn't allowing saved notes, so copy them somewhere safe."; });
+}
+
+// Recordings live in this device's own storage (IndexedDB), never online. Keyed by IDEA's file name.
+const REC_NAMES = new Set(ACCENTS.flatMap(a => a.samples.map(s => fileName(a, s[0])).map(n => n.toLowerCase())));
+const recBlobs = new Map(), recURLs = new Map();
+const recURL = n => { n = n.toLowerCase(); if (!recURLs.has(n) && recBlobs.has(n)) recURLs.set(n, URL.createObjectURL(recBlobs.get(n))); return recURLs.get(n); };
+function recDB(){ return new Promise((ok, no) => { const r = indexedDB.open("accent-kit", 1); r.onupgradeneeded = () => r.result.createObjectStore("recordings"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); }); }
+async function recLoad(){
+  try { const db = await recDB(); await new Promise((ok, no) => { const t = db.transaction("recordings").objectStore("recordings").openCursor(); t.onsuccess = () => { const c = t.result; if (c){ recBlobs.set(c.key, c.value); c.continue(); } else ok(); }; t.onerror = () => no(t.error); }); }
+  catch(e){ $("#rec-why").textContent = "This browser won't store recordings. Try Safari or Chrome, not a private window."; }
+}
+function recShow(){
+  const have = [...REC_NAMES].filter(n => recBlobs.has(n)).length;
+  $("#rec-count").textContent = have + " of " + REC_NAMES.size;
+  $("#rec-add").textContent = have ? "Add more" : "Add recordings";
+  if (have === REC_NAMES.size) $("#rec-why").textContent = "All recordings are saved on this device and play with no signal.";
+}
+async function recAdd(files){
+  // Undo renames a download might add, such as "england16 (1).mp3".
+  const clean = n => n.toLowerCase().replace(/\s*\(\d+\)(?=\.mp3$)/, "").trim();
+  const keep = [...files].map(f => [clean(f.name), f]).filter(([n]) => REC_NAMES.has(n));
+  const skipped = files.length - keep.length;
+  try {
+    const db = await recDB();
+    let i = 0;
+    for (const [n, f] of keep){
+      $("#rec-why").textContent = "Saving " + (++i) + " of " + keep.length + "...";
+      const blob = new Blob([await f.arrayBuffer()], { type: "audio/mpeg" });
+      await new Promise((ok, no) => { const t = db.transaction("recordings", "readwrite"); t.objectStore("recordings").put(blob, n); t.oncomplete = ok; t.onerror = () => no(t.error); });
+      recBlobs.set(n, blob); if (recURLs.has(n)){ URL.revokeObjectURL(recURLs.get(n)); recURLs.delete(n); }
+    }
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+    recShow(); render();
+    $("#rec-why").textContent = "Saved " + keep.length + (keep.length === 1 ? " recording" : " recordings") + (skipped ? ". " + skipped + " didn't match a speaker in the kit and were left out." : ".");
+    if ([...REC_NAMES].every(n => recBlobs.has(n))) recShow();
+  } catch(e){ $("#rec-why").textContent = "Couldn't save them: this device may be short of space."; }
+}
+$("#rec-add").addEventListener("click", () => $("#rec-input").click());
+$("#rec-input").addEventListener("change", e => { recAdd(e.target.files); e.target.value = ""; });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+
+buildNav();
+const h = (location.hash || "").slice(1);
+state.id = [ "method", ...ACCENTS.map(a=>a.id) ].includes(h) ? h : (store.get("ak-last") || "method");
+if (![ "method", ...ACCENTS.map(a=>a.id) ].includes(state.id)) state.id = "method";
+const savedVoice = store.get("ak-voice"); if (["all","M","F"].includes(savedVoice)) state.voice = savedVoice;
+const savedTab = store.get("ak-tab"); if (savedTab && TABS.some(t=>t[0]===savedTab)) state.tab = savedTab;
+render();
+recLoad().then(() => { recShow(); render(); });
+</script>
+
+</body></html>
