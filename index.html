@@ -152,6 +152,7 @@ footer{margin-top:28px;color:var(--muted);font-size:.85rem;max-width:80ch}
 
   <footer>
     Recordings belong to their archives and play on their own sites: the International Dialects of English Archive (IDEA, dialectsarchive.com), Seeing Speech and Dynamic Dialects (University of Glasgow, CC BY-NC-ND 4.0) and Wikipedia/Wikimedia Commons. This app keeps IDEA recordings only on your own device, for personal study as IDEA's terms allow. They are never uploaded with the app.
+    <p id="version">Version 18 October 2026</p>
   </footer>
 </div>
 
@@ -539,7 +540,7 @@ function panel(a){
   if (t === "listen") return `<div class="panel">
     <p style="margin:0;max-width:66ch">Listen three times before working on anything. First for the groove (rhythm, tune, energy), then for the vowels, then for the consonants. Each IDEA page has the speaker reading a set passage and talking freely, with a transcript.</p>
     <div class="voice-filter" role="group" aria-label="Show voices">${[["all","All voices"],["M","Male"],["F","Female"]].map(([k,l]) => `<button data-voice="${k}" aria-pressed="${state.voice===k}">${l} <small>${k==="all" ? a.samples.length : a.samples.filter(s=>s[2]===k).length}</small></button>`).join("")}</div>
-    <div class="listen">${a.samples.filter(s => state.voice==="all" || s[2]===state.voice).map(([slug,label,sex,age,who]) => `<div class="sample"><span class="sex sex-${sex}">${sex==="M" ? "Male" : "Female"}${age ? " · " + esc(age) : ""}</span><strong>${esc(label)}</strong><span class="who">${esc(who)}</span><audio controls preload="metadata" data-file="${fileName(a,slug,sex,age)}"></audio><span class="missing" hidden>Not on this device yet. Tap Add recordings at the top and pick <code>${fileName(a,slug,sex,age)}</code>, or <a href="${IDEA(slug)}" target="_blank" rel="noopener">listen on IDEA</a> when you're online.</span></div>`).join("") || `<p class="note" style="margin:0">IDEA has no ${state.voice==="M" ? "male" : "female"} speaker for this accent yet. Try All voices.</p>`}</div>
+    <div class="listen">${a.samples.filter(s => state.voice==="all" || s[2]===state.voice).map(([slug,label,sex,age,who]) => `<div class="sample"><span class="sex sex-${sex}">${sex==="M" ? "Male" : "Female"}${age ? " · " + esc(age) : ""}</span><strong>${esc(label)}</strong><span class="who">${esc(who)}</span><audio controls preload="metadata" data-file="${fileName(a,slug,sex,age)}"></audio><span class="missing" hidden>Not on this device yet. Use Add recordings at the top and pick <code>${fileName(a,slug,sex,age)}</code>, or <a href="${IDEA(slug)}" target="_blank" rel="noopener">listen on IDEA</a> when you're online.</span></div>`).join("") || `<p class="note" style="margin:0">IDEA has no ${state.voice==="M" ? "male" : "female"} speaker for this accent yet. Try All voices.</p>`}</div>
     <div class="note">More speakers: <a href="https://www.dialectsarchive.com/" target="_blank" rel="noopener">IDEA</a> · tongue and lip videos of UK accents on <a href="https://www.dynamicdialects.ac.uk/accent-map" target="_blank" rel="noopener">Dynamic Dialects</a> · short readings on the <a href="https://accent.gmu.edu/browse_language.php?function=find&amp;language=english" target="_blank" rel="noopener">Speech Accent Archive</a>.</div>
   </div>`;
   if (t === "found") return `<div class="panel">
@@ -662,7 +663,7 @@ async function recAdd(files){
 }
 $("#rec-add").addEventListener("click", () => $("#rec-input").click());
 $("#rec-input").addEventListener("change", e => { recAdd(e.target.files); e.target.value = ""; });
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
 
 buildNav();
 const h = (location.hash || "").slice(1);
